@@ -50,6 +50,6 @@ dependencies {
     annotationProcessor "androidx.lifecycle:lifecycle-compiler:$lifecycle_version"
     implementation 'androidx.annotation:annotation:1.0.0'
     implementation 'com.unity3d.ads:unity-ads:4.7.1'
-
+    implementation 'com.facebook.shimmer:shimmer:0.5.0'
 
 }
