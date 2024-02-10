@@ -37,13 +37,17 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.facebook.ads.Ad;
 import com.facebook.ads.AdError;
+import com.facebook.ads.AdOptionsView;
 import com.facebook.ads.AdView;
 import com.facebook.ads.InterstitialAd;
 import com.facebook.ads.InterstitialAdListener;
+import com.facebook.ads.MediaView;
 import com.facebook.ads.NativeAd;
 import com.facebook.ads.NativeAdBase;
 import com.facebook.ads.NativeAdListener;
@@ -87,6 +91,7 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import pl.droidsonroids.gif.GifImageView;
 
@@ -561,7 +566,6 @@ public class Pizza {
                                 loadSplashAd(builder, ads_context);
 
 
-
                             }
                         } catch (Exception e) {
 
@@ -591,12 +595,9 @@ public class Pizza {
             public void run() {
 
 
-
-
-
-                if(SharPerf.get_admob_i3(ads_context).equals("id")){
+                if (SharPerf.get_admob_i3(ads_context).equals("id")) {
                     Splash_Interstial(builder, ads_context);
-                }else{
+                } else {
                     if (SharPerf.getGdper_First(code_context).equals("0")) { //for load form for first time only
                         concentFormLoading(builder, ads_context);
                     } else {
@@ -1926,7 +1927,6 @@ public class Pizza {
             if (show_ads.equals("1")) {
 
                 if (fb_i.equals("id")) {
-
                     Interstial_Gl_LoadShow(builder, cont_ads);
                     return;
                 }
@@ -1946,12 +1946,9 @@ public class Pizza {
 
                     @Override
                     public void onError(Ad ad, AdError adError) {
-
                         Interstial_Gl_LoadShow(builder, cont_ads);
 
                     }
-
-
                     @Override
                     public void onAdLoaded(Ad ad) {
                         try {
@@ -2250,19 +2247,24 @@ public class Pizza {
 
     public static void Native_FB(Context cont_ads, RelativeLayout adView, int nativeType) {
 
-        if(SharPerf.getNative_custom(cont_ads).equals("3")){
+        if (SharPerf.getNative_custom(cont_ads).equals("3")||SharPerf.getNative_custom(cont_ads).equals("4")||SharPerf.getNative_custom(cont_ads).equals("5")||SharPerf.getNative_custom(cont_ads).equals("6")) {
+
             if (nativeType == 2) {
                 LayoutInflater inflater =
                         (LayoutInflater) cont_ads.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 inflater.inflate(R.layout.gnt_medium_template_view_shimmer, adView);
 
-            } if (nativeType == 1) {
+            }
+            if (nativeType == 1) {
                 LayoutInflater inflater =
                         (LayoutInflater) cont_ads.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 inflater.inflate(R.layout.gnt_small_template_view_shimmer, adView);
             }
         }
-
+        if (SharPerf.getNative_custom(cont_ads).equals("4") || SharPerf.getNative_custom(cont_ads).equals("5")|| SharPerf.getNative_custom(cont_ads).equals("6")) {
+            Native_FB_Coustom(cont_ads, adView, nativeType);
+            return;
+        }
 
         if (nativeType == 2) {
 
@@ -2381,6 +2383,249 @@ public class Pizza {
             Native_Request(code_context.getPackageName());
 
             mNativeBannerAd.loadAd(mNativeBannerAd.buildLoadAdConfig().withAdListener(nativeAdListener).build());
+        }
+    }
+
+
+    public static void Native_FB_Coustom(Context cont_ads, RelativeLayout adView1, int nativeType) {
+
+
+        if (nativeType == 2) {
+            NativeAd nativeAd;
+            nativeAd = new NativeAd(cont_ads, fb_n);
+
+            NativeAdListener nativeAdListener = new NativeAdListener() {
+                @Override
+                public void onMediaDownloaded(Ad ad) {
+
+                }
+
+                @Override
+                public void onError(Ad ad, AdError adError) {
+                    Log.e("onError", "=" + adError);
+                    Native_GL(cont_ads, adView1, nativeType);
+                }
+
+                @Override
+                public void onAdLoaded(Ad ad) {
+                    Log.e("nativeAd", "=" + nativeAd);
+                    if (nativeAd == null || nativeAd != ad) {
+                        return;
+                    }
+                    nativeAd.unregisterView();
+                    LayoutInflater inflater = LayoutInflater.from(cont_ads);
+                    View adView;
+                    if (SharPerf.getNative_custom(cont_ads).equals("4")) {
+                        adView = inflater.inflate(R.layout.fb_native_ad_layout4, adView1, false);
+                    } else if (SharPerf.getNative_custom(cont_ads).equals("5")) {
+                        adView = inflater.inflate(R.layout.fb_native_ad_layout5, adView1, false);
+                    }else  {
+                        adView = inflater.inflate(R.layout.fb_native_ad_layout6, adView1, false);
+                    }
+
+                    RelativeLayout adChoicesContainer = adView.findViewById(R.id.ad_choices_container);
+                    AdOptionsView adOptionsView = new AdOptionsView(cont_ads, nativeAd, null);
+                    adChoicesContainer.removeAllViews();
+                    adChoicesContainer.addView(adOptionsView, 0);
+                    setClickable(adChoicesContainer);
+
+                    // Create native UI using the ad metadata.
+                    MediaView nativeAdIcon = adView.findViewById(R.id.native_ad_icon);
+                    TextView nativeAdTitle = adView.findViewById(R.id.native_ad_title);
+                    MediaView nativeAdMedia = adView.findViewById(R.id.native_ad_media);
+                    TextView nativeAdSocialContext = adView.findViewById(R.id.native_ad_social_context);
+                    TextView nativeAdBody = adView.findViewById(R.id.native_ad_body);
+                    TextView sponsoredLabel = adView.findViewById(R.id.native_ad_sponsored_label);
+                    AppCompatButton nativeAdCallToAction = adView.findViewById(R.id.native_ad_call_to_action);
+
+                    // Set the Text.
+                    nativeAdTitle.setText(nativeAd.getAdvertiserName());
+                    nativeAdBody.setText(nativeAd.getAdBodyText());
+                    nativeAdSocialContext.setText(nativeAd.getAdSocialContext());
+                    nativeAdCallToAction.setVisibility(nativeAd.hasCallToAction() ? View.VISIBLE : View.INVISIBLE);
+                    nativeAdCallToAction.setText(nativeAd.getAdCallToAction());
+                    sponsoredLabel.setText(nativeAd.getSponsoredTranslation());
+
+                    CardView card_main = adView.findViewById(R.id.card_main);
+                    CardView cardbutton = adView.findViewById(R.id.cardbutton);
+                    try {
+                        card_main.setCardBackgroundColor(Color.parseColor(SharPerf.getBGColor(cont_ads)));
+                        nativeAdTitle.setTextColor(Color.parseColor(SharPerf.getTitleTextColor(cont_ads)));
+                        nativeAdSocialContext.setTextColor(Color.parseColor(SharPerf.getTitleTextColor(cont_ads)));
+                        nativeAdBody.setTextColor(Color.parseColor(SharPerf.getDescriptionTextColor(cont_ads)));
+                        sponsoredLabel.setTextColor(Color.parseColor(SharPerf.getDescriptionTextColor(cont_ads)));
+                        cardbutton.setCardBackgroundColor(Color.parseColor(SharPerf.getButtonColor(cont_ads)));
+                        nativeAdCallToAction.setTextColor(Color.parseColor(SharPerf.getButtonTextColor(cont_ads)));
+
+                    } catch (Exception e) {
+                        Log.e("Exception", "=" + e.getMessage());
+                    }
+
+
+                    // Create a list of clickable views
+                    List<View> clickableViews = new ArrayList<>();
+                    clickableViews.add(nativeAdTitle);
+                    clickableViews.add(nativeAdCallToAction);
+                    clickableViews.add(nativeAdMedia);
+                    clickableViews.add(nativeAdSocialContext);
+                    clickableViews.add(nativeAdBody);
+                    clickableViews.add(sponsoredLabel);
+                    clickableViews.add(nativeAdIcon);
+                    // Register the Title and CTA button to listen for clicks.
+                    nativeAd.registerViewForInteraction(
+                            adView, nativeAdMedia, nativeAdIcon, clickableViews);
+                    try {
+                        adView1.removeAllViews();
+                        adView1.addView(adView);
+                        adView1.setVisibility(View.VISIBLE);
+                    } catch (Exception E) {
+                        Log.e("dccfdvfvf", "=" + E);
+                    }
+                }
+
+                @Override
+                public void onAdClicked(Ad ad) {
+
+                }
+
+                @Override
+                public void onLoggingImpression(Ad ad) {
+
+                }
+            };
+
+            // Request an ad
+            nativeAd.loadAd(
+                    nativeAd.buildLoadAdConfig()
+                            .withAdListener(nativeAdListener)
+                            .build());
+        } else {
+
+
+            NativeBannerAd nativeBannerAd;
+            nativeBannerAd = new NativeBannerAd(cont_ads, fb_ns);
+            NativeAdListener nativeAdListener = new NativeAdListener() {
+                @Override
+                public void onMediaDownloaded(Ad ad) {
+
+                }
+
+                @Override
+                public void onError(Ad ad, AdError adError) {
+                    Native_GL(cont_ads, adView1, nativeType);
+                }
+
+                @Override
+                public void onAdLoaded(Ad ad) {
+                    if (nativeBannerAd == null || nativeBannerAd != ad) {
+                        return;
+                    }
+
+
+                    nativeBannerAd.unregisterView();
+
+                    // Add the Ad view into the ad container.
+                    LayoutInflater inflater = LayoutInflater.from(cont_ads);
+                    View adView;
+                    if (SharPerf.getNative_custom(cont_ads).equals("4")) {
+                        adView = inflater.inflate(R.layout.fb_native_banner_ad_layout4_5, adView1, false);
+                    } else if (SharPerf.getNative_custom(cont_ads).equals("5")) {
+                        adView = inflater.inflate(R.layout.fb_native_banner_ad_layout4_5, adView1, false);
+                    }else  {
+                        adView = inflater.inflate(R.layout.fb_native_banner_ad_layout6, adView1, false);
+                    }
+
+                    // Inflate the Ad view.  The layout referenced is the one you created in the last step.
+
+                    // Add the AdChoices icon
+                    RelativeLayout adChoicesContainer = adView.findViewById(R.id.ad_choices_container);
+                    AdOptionsView adOptionsView = new AdOptionsView(cont_ads, nativeBannerAd, null);
+                    adChoicesContainer.removeAllViews();
+                    adChoicesContainer.addView(adOptionsView, 0);
+
+                    setClickable(adChoicesContainer);
+
+                    // Create native UI using the ad metadata.
+                    TextView nativeAdTitle = adView.findViewById(R.id.native_ad_title);
+                    TextView nativeAdSocialContext = adView.findViewById(R.id.native_ad_social_context);
+                    TextView sponsoredLabel = adView.findViewById(R.id.native_ad_sponsored_label);
+                    MediaView nativeAdIconView = adView.findViewById(R.id.native_icon_view);
+                    Button nativeAdCallToAction = adView.findViewById(R.id.native_ad_call_to_action);
+
+                    // Set the Text.
+                    nativeAdCallToAction.setText(nativeBannerAd.getAdCallToAction());
+                    nativeAdCallToAction.setVisibility(
+                            nativeBannerAd.hasCallToAction() ? View.VISIBLE : View.INVISIBLE);
+                    nativeAdTitle.setText(nativeBannerAd.getAdvertiserName());
+                    nativeAdSocialContext.setText(nativeBannerAd.getAdSocialContext());
+                    sponsoredLabel.setText(nativeBannerAd.getSponsoredTranslation());
+
+
+
+                    CardView card_main = adView.findViewById(R.id.card_main);
+                    CardView cardbutton = adView.findViewById(R.id.cardbutton);
+                    try {
+                        card_main.setCardBackgroundColor(Color.parseColor(SharPerf.getBGColor(cont_ads)));
+                        nativeAdTitle.setTextColor(Color.parseColor(SharPerf.getTitleTextColor(cont_ads)));
+                        nativeAdSocialContext.setTextColor(Color.parseColor(SharPerf.getTitleTextColor(cont_ads)));
+                        sponsoredLabel.setTextColor(Color.parseColor(SharPerf.getDescriptionTextColor(cont_ads)));
+                        cardbutton.setCardBackgroundColor(Color.parseColor(SharPerf.getButtonColor(cont_ads)));
+                        nativeAdCallToAction.setTextColor(Color.parseColor(SharPerf.getButtonTextColor(cont_ads)));
+
+                    } catch (Exception e) {
+                        Log.e("Exception", "=" + e.getMessage());
+                    }
+
+
+                    // Register the Title and CTA button to listen for clicks.
+                    List<View> clickableViews = new ArrayList<>();
+                    clickableViews.add(nativeAdTitle);
+                    clickableViews.add(nativeAdCallToAction);
+                    clickableViews.add(nativeAdSocialContext);
+                    clickableViews.add(nativeAdIconView);
+                    clickableViews.add(sponsoredLabel);
+
+                    nativeBannerAd.registerViewForInteraction(adView, nativeAdIconView, clickableViews);
+
+                    try {
+                        adView1.removeAllViews();
+                        adView1.addView(adView);
+                        adView1.setVisibility(View.VISIBLE);
+                    } catch (Exception E) {
+                        Log.e("dccfdvfvf", "=" + E);
+                    }
+
+                }
+
+                @Override
+                public void onAdClicked(Ad ad) {
+
+                }
+
+                @Override
+                public void onLoggingImpression(Ad ad) {
+
+                }
+            };
+            // load the ad
+            nativeBannerAd.loadAd(
+                    nativeBannerAd.buildLoadAdConfig()
+                            .withAdListener(nativeAdListener)
+                            .build());
+        }
+
+
+    }
+
+    public static void setClickable(View view) {
+        if (view != null) {
+            view.setClickable(false);
+            if (view instanceof ViewGroup) {
+                ViewGroup vg = ((ViewGroup) view);
+                for (int i = 0; i < vg.getChildCount(); i++) {
+                    setClickable(vg.getChildAt(i));
+                }
+            }
         }
     }
 
@@ -2513,7 +2758,7 @@ public class Pizza {
 
     public static void Banner_FB(Context cont_ads, RelativeLayout adView, int bannerType) {
 
-        if(SharPerf.getNative_custom(cont_ads).equals("3")){
+        if (SharPerf.getNative_custom(cont_ads).equals("3")||SharPerf.getNative_custom(cont_ads).equals("4")||SharPerf.getNative_custom(cont_ads).equals("5")||SharPerf.getNative_custom(cont_ads).equals("6")) {
             if (bannerType == 3) {
                 LayoutInflater inflater =
                         (LayoutInflater) cont_ads.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -2555,7 +2800,7 @@ public class Pizza {
         }
         if (bannerType == 3) {
 
-            Log.e("fb fb_mr",""+fb_mr);
+            Log.e("fb fb_mr", "" + fb_mr);
             FB_Banner = new AdView(cont_ads, "" + fb_mr, adsize);
         } else {
             FB_Banner = new AdView(cont_ads, "" + fb_b, adsize);
@@ -2566,7 +2811,7 @@ public class Pizza {
             @Override
             public void onError(Ad ad, AdError adError) {
 
-                Log.e("fb baner","="+adError);
+                Log.e("fb baner", "=" + adError);
                 Banner_GL(cont_ads, adView, bannerType);
             }
 
